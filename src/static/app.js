@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
 
+  // Dark mode elements
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const darkModeLabel = document.getElementById("dark-mode-label");
+
   // Activity categories with corresponding colors
   const activityTypes = {
     sports: { label: "Sports", color: "#e8f5e9", textColor: "#2e7d32" },
@@ -43,6 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  // Dark mode state
+  let isDarkMode = false;
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -97,6 +104,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fetchActivities();
   }
+
+  // Dark mode functions
+  function initializeDarkMode() {
+    // Check localStorage for saved preference
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode === "true") {
+      enableDarkMode();
+    }
+  }
+
+  function toggleDarkMode() {
+    if (isDarkMode) {
+      disableDarkMode();
+    } else {
+      enableDarkMode();
+    }
+  }
+
+  function enableDarkMode() {
+    isDarkMode = true;
+    document.body.classList.add("dark-mode");
+    localStorage.setItem("darkMode", "true");
+    updateDarkModeButton();
+  }
+
+  function disableDarkMode() {
+    isDarkMode = false;
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("darkMode", "false");
+    updateDarkModeButton();
+  }
+
+  function updateDarkModeButton() {
+    const icon = darkModeToggle.querySelector(".icon");
+    if (isDarkMode) {
+      icon.textContent = "☀️";
+      darkModeLabel.textContent = "Light";
+    } else {
+      icon.textContent = "🌙";
+      darkModeLabel.textContent = "Dark";
+    }
+  }
+
+  // Event listener for dark mode toggle
+  darkModeToggle.addEventListener("click", toggleDarkMode);
 
   // Check if user is already logged in (from localStorage)
   function checkAuthentication() {
@@ -863,6 +915,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
