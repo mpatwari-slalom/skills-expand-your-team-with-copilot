@@ -26,6 +26,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
 
+  // Dark mode elements
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+  const darkModeLabel = document.getElementById("dark-mode-label");
+
   // Activity categories with corresponding colors
   const activityTypes = {
     sports: { label: "Sports", color: "#e8f5e9", textColor: "#2e7d32" },
@@ -45,6 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  // Dark mode state
+  let isDarkMode = false;
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -121,6 +128,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
     fetchActivities();
   }
+
+  // Dark mode functions
+  function initializeDarkMode() {
+    // Check localStorage for saved preference
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode === "true") {
+      enableDarkMode();
+    }
+  }
+
+  function toggleDarkMode() {
+    if (isDarkMode) {
+      disableDarkMode();
+    } else {
+      enableDarkMode();
+    }
+  }
+
+  function enableDarkMode() {
+    isDarkMode = true;
+    document.body.classList.add("dark-mode");
+    localStorage.setItem("darkMode", "true");
+    updateDarkModeButton();
+  }
+
+  function disableDarkMode() {
+    isDarkMode = false;
+    document.body.classList.remove("dark-mode");
+    localStorage.setItem("darkMode", "false");
+    updateDarkModeButton();
+  }
+
+  function updateDarkModeButton() {
+    const icon = darkModeToggle.querySelector(".icon");
+    if (isDarkMode) {
+      icon.textContent = "☀️";
+      darkModeLabel.textContent = "Light";
+    } else {
+      icon.textContent = "🌙";
+      darkModeLabel.textContent = "Dark";
+    }
+  }
+
+  // Event listener for dark mode toggle
+  darkModeToggle.addEventListener("click", toggleDarkMode);
 
   // Check if user is already logged in (from localStorage)
   function checkAuthentication() {
@@ -513,6 +565,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Function to create share URL for an activity
+  function createShareUrls(activityName, description, schedule) {
+    const currentUrl = window.location.href.split('?')[0];
+    const shareText = `Check out ${activityName} at Mergington High School! ${description}`;
+    const shareUrl = currentUrl;
+
+    return {
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+      email: `mailto:?subject=${encodeURIComponent(`Join ${activityName}!`)}&body=${encodeURIComponent(`${shareText}\n\nSchedule: ${schedule}\n\nLearn more at: ${shareUrl}`)}`
+    };
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -560,6 +626,9 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    // Create share URLs
+    const shareUrls = createShareUrls(name, details.description, formattedSchedule);
+
     activityCard.innerHTML = `
       ${tagHtml}
       <h4>${name}</h4>
@@ -592,6 +661,13 @@ document.addEventListener("DOMContentLoaded", () => {
             )
             .join("")}
         </ul>
+      </div>
+      <div class="social-share-container">
+        <div class="share-label">Share:</div>
+        <a href="${shareUrls.twitter}" target="_blank" rel="noopener noreferrer" class="social-share-button twitter" title="Share on Twitter">𝕏</a>
+        <a href="${shareUrls.facebook}" target="_blank" rel="noopener noreferrer" class="social-share-button facebook" title="Share on Facebook">f</a>
+        <a href="${shareUrls.linkedin}" target="_blank" rel="noopener noreferrer" class="social-share-button linkedin" title="Share on LinkedIn">in</a>
+        <a href="${shareUrls.email}" class="social-share-button email" title="Share via Email">✉</a>
       </div>
       <div class="activity-card-actions">
         ${
@@ -917,6 +993,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
+  initializeDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
