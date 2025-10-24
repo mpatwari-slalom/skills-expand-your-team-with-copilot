@@ -473,6 +473,20 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Function to create share URL for an activity
+  function createShareUrls(activityName, description, schedule) {
+    const currentUrl = window.location.href.split('?')[0];
+    const shareText = `Check out ${activityName} at Mergington High School! ${description}`;
+    const shareUrl = currentUrl;
+
+    return {
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+      email: `mailto:?subject=${encodeURIComponent(`Join ${activityName}!`)}&body=${encodeURIComponent(`${shareText}\n\nSchedule: ${schedule}\n\nLearn more at: ${shareUrl}`)}`
+    };
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -520,6 +534,9 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    // Create share URLs
+    const shareUrls = createShareUrls(name, details.description, formattedSchedule);
+
     activityCard.innerHTML = `
       ${tagHtml}
       <h4>${name}</h4>
@@ -552,6 +569,13 @@ document.addEventListener("DOMContentLoaded", () => {
             )
             .join("")}
         </ul>
+      </div>
+      <div class="social-share-container">
+        <div class="share-label">Share:</div>
+        <a href="${shareUrls.twitter}" target="_blank" rel="noopener noreferrer" class="social-share-button twitter" title="Share on Twitter">𝕏</a>
+        <a href="${shareUrls.facebook}" target="_blank" rel="noopener noreferrer" class="social-share-button facebook" title="Share on Facebook">f</a>
+        <a href="${shareUrls.linkedin}" target="_blank" rel="noopener noreferrer" class="social-share-button linkedin" title="Share on LinkedIn">in</a>
+        <a href="${shareUrls.email}" class="social-share-button email" title="Share via Email">✉</a>
       </div>
       <div class="activity-card-actions">
         ${
